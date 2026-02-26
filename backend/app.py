@@ -67,11 +67,15 @@ def create_app(env: str = "default") -> Flask:
     # FIX #1: Import blueprint AFTER limiter is created, then register.
     # Apply per-route limits post-registration so view_functions dict is populated.
     from api.routes import stego_bp  # noqa: E402
+    from api.auth import auth_bp
+    
     app.register_blueprint(stego_bp)
+    app.register_blueprint(auth_bp)
 
     # Apply per-route rate limits now that the view functions are registered
     limiter.limit(cfg.RATE_LIMIT_ENCODE)(app.view_functions["stego.encode"])
     limiter.limit(cfg.RATE_LIMIT_DECODE)(app.view_functions["stego.decode"])
+    limiter.limit("5 per minute")(app.view_functions["auth.generate_api_key"])
 
     # ─── Centralised Error Handlers ──────────────────────────────────────────
     

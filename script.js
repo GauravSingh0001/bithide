@@ -1,6 +1,9 @@
 import './style.css';
+import { initAuth, getActiveApiKey } from './auth';
 
 document.addEventListener('DOMContentLoaded', () => {
+    initAuth();
+
     // Nav logic
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.app-section');
@@ -160,8 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('key', keyInput.value);
 
             try {
+                const apiKey = getActiveApiKey();
+                if (!apiKey) throw new Error("No active API Key found in secure memory. Generate one in the Developer API tab.");
+
                 const response = await fetch(`${API_BASE_URL}/encode`, {
                     method: 'POST',
+                    headers: {
+                        'X-API-Key': apiKey
+                    },
                     body: formData
                 });
 
@@ -216,8 +225,14 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('key', keyInput.value);
 
             try {
+                const apiKey = getActiveApiKey();
+                if (!apiKey) throw new Error("No active API Key found in secure memory. Generate one in the Developer API tab.");
+
                 const response = await fetch(`${API_BASE_URL}/decode`, {
                     method: 'POST',
+                    headers: {
+                        'X-API-Key': apiKey
+                    },
                     body: formData
                 });
 

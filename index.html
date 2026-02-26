@@ -13,9 +13,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="/auth.css">
 </head>
 
 <body>
+    <!-- AUTH MODAL SYSTEM -->
+    <div id="auth-modal" class="auth-modal-overlay active">
+        <div class="auth-card">
+            <div class="auth-card-header">
+                <i class="ph-fill ph-fingerprint auth-logo"></i>
+                <h2 id="auth-title">Sign In to BitHide</h2>
+                <p id="auth-subtitle">Secure access to the stego platform</p>
+            </div>
+
+            <div id="auth-error">Error message here</div>
+
+            <form id="auth-form">
+                <div class="auth-form-group">
+                    <label>Email Address</label>
+                    <div class="auth-input-wrapper">
+                        <i class="ph-fill ph-envelope-simple"></i>
+                        <input type="email" id="auth-email" placeholder="agent@bithide.io" required>
+                    </div>
+                </div>
+
+                <div class="auth-form-group">
+                    <label>Master Password</label>
+                    <div class="auth-input-wrapper">
+                        <i class="ph-fill ph-lock-key"></i>
+                        <input type="password" id="auth-password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn" id="auth-submit-btn">Authenticate Session</button>
+            </form>
+
+            <div class="auth-toggle">
+                <span id="auth-toggle-text">Need to establish clearance?</span>
+                <a id="auth-toggle-link">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
     <div class="dashboard-layout">
 
         <!-- Sidebar Navigation -->
@@ -39,6 +78,10 @@
                 <div class="nav-divider"></div>
                 <div class="nav-label">Management</div>
 
+                <button class="nav-item" data-target="developer">
+                    <i class="ph-fill ph-terminal-window"></i>
+                    <span>Developer API</span>
+                </button>
                 <button class="nav-item" data-target="vault">
                     <i class="ph-fill ph-clock-counter-clockwise"></i>
                     <span>Data Vault</span>
@@ -80,13 +123,9 @@
                 </div>
 
                 <div class="topbar-actions">
-                    <button class="icon-btn" title="Notifications">
-                        <i class="ph ph-bell"></i>
-                        <span class="notification-dot"></span>
-                    </button>
-                    <button class="icon-btn" title="Settings"><i class="ph ph-gear"></i></button>
-                    <div class="user-avatar">
-                        <i class="ph-fill ph-user"></i>
+                    <div class="auth-user-badge" id="btn-logout" title="Sign Out">
+                        <span id="user-display">Not logged in</span>
+                        <i class="ph-fill ph-sign-out"></i>
                     </div>
                 </div>
             </header>
@@ -262,6 +301,44 @@
                                 <h3 style="margin-top: 16px; color: var(--text-main);">No Logged Activity</h3>
                                 <p style="margin-top: 4px;">Initialize an encoding or decoding task to populate your
                                     vault.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- DEVELOPER API SECTION -->
+                    <section id="developer" class="app-section">
+                        <h1 class="page-title">Developer <span class="text-gradient">API Dashboard</span></h1>
+                        <p class="page-desc">Manage API Authentication and check your SaaS request quota.</p>
+
+                        <div class="desktop-grid" style="grid-template-columns: 1fr;">
+                            <div class="grid-col">
+                                <div class="api-key-container">
+                                    <div class="step-header">
+                                        <h2><i class="ph-fill ph-key"></i> Primary API Key</h2>
+                                    </div>
+                                    <p class="info-text">You must pass this key as the `<strong>X-API-Key</strong>`
+                                        header in all requests.</p>
+
+                                    <div class="api-key-display" id="api-key-display-box">
+                                        <span id="api-key-text">Loading secure session...</span>
+                                        <div class="api-actions">
+                                            <button class="icon-btn" id="btn-copy-key" title="Copy to clipboard"
+                                                style="display:none;">
+                                                <i class="ph ph-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-top: 24px;">
+                                        <button class="btn-sm btn-primary" id="btn-generate-key">
+                                            <i class="ph ph-arrows-clockwise"></i> Generate New Key
+                                        </button>
+                                        <p class="info-text" style="color:#ef4444; margin-top: 8px;">
+                                            <i class="ph ph-warning-circle"></i> Warning: Generating a new key instantly
+                                            invalidates your previous key.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
