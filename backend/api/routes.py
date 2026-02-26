@@ -99,14 +99,6 @@ def encode():
             download_name=f"bithide_stego{output_path.suffix}",
         )
 
-    except BitHideException as exc:
-        logger.warning(f"[ENCODE] REJECTED | {exc.message}")
-        return jsonify(exc.to_dict()), exc.status_code
-
-    except Exception as exc:
-        logger.error(f"[ENCODE] ERROR | {exc}", exc_info=True)
-        return jsonify({"error": True, "message": "Internal server error during encoding.", "status": 500}), 500
-
     finally:
         # Only clean up the upload; output is cleaned via after_this_request
         file_handler.cleanup(upload_path)
@@ -143,14 +135,6 @@ def decode():
         logger.info(f"[DECODE] SUCCESS | file={file.filename} | chars={len(message)}")
 
         return jsonify({"success": True, "message": message}), 200
-
-    except BitHideException as exc:
-        logger.warning(f"[DECODE] REJECTED | {exc.message}")
-        return jsonify(exc.to_dict()), exc.status_code
-
-    except Exception as exc:
-        logger.error(f"[DECODE] ERROR | {exc}", exc_info=True)
-        return jsonify({"error": True, "message": "Internal server error during decoding.", "status": 500}), 500
 
     finally:
         file_handler.cleanup(upload_path)
