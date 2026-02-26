@@ -1,0 +1,49 @@
+﻿
+ΓòÉΓòÉΓòÉ Encryption Layer ΓòÉΓòÉΓòÉ
+[92m  PASS[0m  encrypt ΓåÆ decrypt roundtrip  (216 bytes)
+[2026-02-27 02:54:39] [WARNING] [ReqID:-] [Key:-] [security.encryption] Decryption failed: invalid token (wrong key or corrupted data)
+[92m  PASS[0m  wrong key raises DecryptionError
+[92m  PASS[0m  unique ciphertexts per call (salt randomness)
+
+ΓòÉΓòÉΓòÉ Image Steganography (PNG) ΓòÉΓòÉΓòÉ
+[2026-02-27 02:54:39] [INFO] [ReqID:-] [Key:-] [processing.image_stego] Image encoded: carrier=test_carrier.png, payload=216 bytes ΓåÆ test_stego.png
+[92m  PASS[0m  encode_image (200├ù200 PNG)  (1291 bytes)
+[2026-02-27 02:54:39] [INFO] [ReqID:-] [Key:-] [processing.image_stego] Image decoded: test_stego.png, extracted 216 bytes
+[92m  PASS[0m  decode_image ΓåÆ correct message  ('Hello from BitHide -- this is a secret m')
+[92m  PASS[0m  over-capacity image raises error  (PayloadTooLargeForCarrierError)
+
+ΓòÉΓòÉΓòÉ Audio Steganography (WAV) ΓòÉΓòÉΓòÉ
+[2026-02-27 02:54:40] [INFO] [ReqID:-] [Key:-] [processing.audio_stego] Audio encoded: test_carrier.wav ΓåÆ test_stego.wav, payload=216 bytes
+[92m  PASS[0m  encode_audio (44100 frames WAV)  (88244 bytes)
+[2026-02-27 02:54:40] [INFO] [ReqID:-] [Key:-] [processing.audio_stego] Audio decoded: test_stego.wav, extracted 216 bytes
+[92m  PASS[0m  decode_audio ΓåÆ correct message  ('Hello from BitHide -- this is a secret m')
+
+ΓòÉΓòÉΓòÉ PDF Steganography ΓòÉΓòÉΓòÉ
+[2026-02-27 02:54:40] [INFO] [ReqID:-] [Key:-] [processing.pdf_stego] PDF encoded: test_carrier.pdf ΓåÆ test_stego.pdf, payload=216 bytes
+[92m  PASS[0m  encode_pdf (minimal PDF)  (500 bytes)
+[2026-02-27 02:54:40] [INFO] [ReqID:-] [Key:-] [processing.pdf_stego] PDF decoded: test_stego.pdf, extracted 216 bytes
+[92m  PASS[0m  decode_pdf ΓåÆ correct message  ('Hello from BitHide -- this is a secret m')
+[92m  PASS[0m  decode_pdf on clean file raises ExtractionError
+
+ΓòÉΓòÉΓòÉ Flask API (Test Client) ΓòÉΓòÉΓòÉ
+[2026-02-27 02:54:41] [INFO] [ReqID:-] [Key:-] [bithide.app] BitHide app created [env=development]
+[2026-02-27 02:54:41] [INFO] [ReqID:-] [Key:-] [bithide.app] BitHide app created [env=development]
+[92m  PASS[0m  GET /health ΓåÆ 200  (ok)
+[2026-02-27 02:54:42] [WARNING] [ReqID:352f203e-d9ca-4690-95f9-0c11c0d3ba04] [Key:-] [bithide.app] REJECTED | UNAUTHORIZED | Missing API Key. Provide 'X-API-Key' header or 'Authorization: Bearer <key>'.
+[2026-02-27 02:54:42] [WARNING] [ReqID:352f203e-d9ca-4690-95f9-0c11c0d3ba04] [Key:-] [bithide.app] REJECTED | UNAUTHORIZED | Missing API Key. Provide 'X-API-Key' header or 'Authorization: Bearer <key>'.
+[91m  FAIL[0m  POST /encode missing file ΓåÆ 400
+[2026-02-27 02:54:42] [WARNING] [ReqID:5f61b034-ec69-4784-b909-4fcae0c7fb3a] [Key:-] [bithide.app] REJECTED | UNAUTHORIZED | Missing API Key. Provide 'X-API-Key' header or 'Authorization: Bearer <key>'.
+[2026-02-27 02:54:42] [WARNING] [ReqID:5f61b034-ec69-4784-b909-4fcae0c7fb3a] [Key:-] [bithide.app] REJECTED | UNAUTHORIZED | Missing API Key. Provide 'X-API-Key' header or 'Authorization: Bearer <key>'.
+[91m  FAIL[0m  POST /encode weak key ΓåÆ 422
+[2026-02-27 02:54:42] [WARNING] [ReqID:d0a06bb2-c596-48a8-bdc2-3da46212ae74] [Key:-] [bithide.app] REJECTED | UNAUTHORIZED | Missing API Key. Provide 'X-API-Key' header or 'Authorization: Bearer <key>'.
+[2026-02-27 02:54:42] [WARNING] [ReqID:d0a06bb2-c596-48a8-bdc2-3da46212ae74] [Key:-] [bithide.app] REJECTED | UNAUTHORIZED | Missing API Key. Provide 'X-API-Key' header or 'Authorization: Bearer <key>'.
+[91m  FAIL[0m  POST /encode full roundtrip ΓåÆ 200  (content-type=application/json)
+[2026-02-27 02:54:42] [INFO] [ReqID:-] [Key:-] [processing.image_stego] Image encoded: carrier=test_carrier.png, payload=216 bytes ΓåÆ api_stego.png
+[2026-02-27 02:54:42] [WARNING] [ReqID:6322ef8f-ac03-4f8f-be8e-32c6572d3365] [Key:-] [bithide.app] REJECTED | UNAUTHORIZED | Missing API Key. Provide 'X-API-Key' header or 'Authorization: Bearer <key>'.
+[2026-02-27 02:54:42] [WARNING] [ReqID:6322ef8f-ac03-4f8f-be8e-32c6572d3365] [Key:-] [bithide.app] REJECTED | UNAUTHORIZED | Missing API Key. Provide 'X-API-Key' header or 'Authorization: Bearer <key>'.
+[91m  FAIL[0m  POST /decode wrong key ΓåÆ 422
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  Results: 12/16 passed  ┬╖  4 FAILED
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+

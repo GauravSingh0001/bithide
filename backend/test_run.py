@@ -215,6 +215,20 @@ print("\n═══ Flask API (Test Client) ═══")
 
 try:
     from app import create_app
+    from unittest.mock import patch
+
+    # Mock the DB call in the middleware so tests don't require an actual JWT/API Key in Supabase.
+    class MockQuery:
+        def select(self, *args): return self
+        def eq(self, *args): return self
+        def execute(self):
+            class Resp:
+                data = [{"id": "mock_id", "user_id": "mock_uid", "is_active": True}]
+            return Resp()
+
+    class MockSupabase:
+        def table(self, *args): return MockQuery()
+
     app = create_app("development")
     client = app.test_client()
 
@@ -226,9 +240,12 @@ except Exception as e:
     client = None
 
 if client:
+    AUTH_HEADER = {"X-API-Key": "test-key-bypass"}
+
     # Missing file
     try:
-        resp = client.post("/encode", data={"message": "hi", "key": "abcdefgh"})
+        with patch("core.middlewares.get_supabase", return_value=MockSupabase()):
+            resp = client.post("/encode", data={"message": "hi", "key": "abcdefgh"}, headers=AUTH_HEADER)
         record("POST /encode missing file → 400", resp.status_code == 400)
     except Exception as e:
         record("POST /encode missing file → 400", False, str(e))
@@ -236,10 +253,11 @@ if client:
     # Weak key
     try:
         with open(str(carrier_png), "rb") as f:
-            resp = client.post("/encode", data={
-                "message": "test", "key": "short",
-                "file": (f, "carrier.png", "image/png")
-            }, content_type="multipart/form-data")
+            with patch("core.middlewares.get_supabase", return_value=MockSupabase()):
+                resp = client.post("/encode", data={
+                    "message": "test", "key": "short",
+                    "file": (f, "carrier.png", "image/png")
+                }, content_type="multipart/form-data", headers=AUTH_HEADER)
         record("POST /encode weak key → 422", resp.status_code == 422)
     except Exception as e:
         record("POST /encode weak key → 422", False, str(e))
@@ -247,10 +265,11 @@ if client:
     # Full encode roundtrip via API
     try:
         with open(str(carrier_png), "rb") as f:
-            resp = client.post("/encode", data={
-                "message": SECRET, "key": KEY,
-                "file": (f, "carrier.png", "image/png")
-            }, content_type="multipart/form-data")
+            with patch("core.middlewares.get_supabase", return_value=MockSupabase()):
+                resp = client.post("/encode", data={
+                    "message": SECRET, "key": KEY,
+                    "file": (f, "carrier.png", "image/png")
+                }, content_type="multipart/form-data", headers=AUTH_HEADER)
         record("POST /encode full roundtrip → 200", resp.status_code == 200,
                f"content-type={resp.content_type}")
     except Exception as e:
@@ -263,10 +282,11 @@ if client:
         payload = encrypt_message(SECRET, KEY)
         encode_image(carrier_png, payload, stego_png_fresh)
         with open(str(stego_png_fresh), "rb") as f:
-            resp = client.post("/decode", data={
-                "key": WRONG_KEY,
-                "file": (f, "stego.png", "image/png")
-            }, content_type="multipart/form-data")
+            with patch("core.middlewares.get_supabase", return_value=MockSupabase()):
+                resp = client.post("/decode", data={
+                    "key": WRONG_KEY,
+                    "file": (f, "stego.png", "image/png")
+                }, content_type="multipart/form-data", headers=AUTH_HEADER)
         record("POST /decode wrong key → 422", resp.status_code == 422)
     except Exception as e:
         record("POST /decode wrong key → 422", False, str(e))
