@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.DS_Store
+
+# python
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/.pytest_cache
+backend/.env
+backend/logs/
+
+# tmp
+*.log
