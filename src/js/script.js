@@ -1,4 +1,4 @@
-import './style.css';
+import '../css/style.css';
 import { initAuth, getActiveApiKey } from './auth';
 
 document.addEventListener('DOMContentLoaded', () => {
