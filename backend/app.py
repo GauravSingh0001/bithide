@@ -36,10 +36,10 @@ def create_app(env: str = "default") -> Flask:
 
     # ─── Extensions ──────────────────────────────────────────────────────────
 
-    # CORS — allow requests from the Vite frontend (localhost:5173) and any deployed domain
+    # CORS — Allow all origins to prevent preflight OPTIONS failures
     CORS(
         app,
-        resources={r"/*": {"origins": os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")}},
+        resources={r"/*": {"origins": "*"}},
     )
 
     # Rate limiter (in-memory; swap to Redis in production)
