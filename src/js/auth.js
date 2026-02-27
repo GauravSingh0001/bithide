@@ -6,7 +6,7 @@ const SUPABASE_URL = 'https://iobfxpwtcgyiypolcwys.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvYmZ4cHd0Y2d5aXlwb2xjd3lzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMjc0MDUsImV4cCI6MjA4NzcwMzQwNX0.ezGhcTnU-yBLBTQ0MZKVcbMfhDY4RJOKlzK7MdQtJWo';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 // ─── DOM Elements ───────────────────────────────────────────────────────────
 const authModal = document.getElementById('auth-modal');

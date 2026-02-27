@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDropzone('decode-dropzone', 'decode-file-input');
 
     // API endpoints logic
-    const API_BASE_URL = 'http://localhost:5000';
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
     const encodeBtn = document.querySelector('#encode .btn-large');
     const decodeBtn = document.querySelector('#decode .btn-large');
 
