@@ -61,31 +61,19 @@ def encode_image(input_path: Path, payload: bytes, output_path: Path) -> None:
         PayloadTooLargeForCarrierError: If carrier has insufficient capacity.
     """
     img = Image.open(input_path).convert("RGB")
-    pixels = list(img.getdata())
-    total_channels = len(pixels) * 3  # R, G, B
+    data = bytearray(img.tobytes())
 
     payload_bits = _payload_to_bits(payload)
     length_bits = _length_to_bits(len(payload))
     full_bits = length_bits + payload_bits
 
-    if len(full_bits) > total_channels:
+    if len(full_bits) > len(data):
         raise PayloadTooLargeForCarrierError()
 
-    bit_iter = iter(full_bits)
-    new_pixels = []
+    for i, bit in enumerate(full_bits):
+        data[i] = (data[i] & 0xFE) | bit
 
-    for pixel in pixels:
-        new_channels = []
-        for channel in pixel:
-            try:
-                bit = next(bit_iter)
-                new_channels.append((channel & 0xFE) | bit)
-            except StopIteration:
-                new_channels.append(channel)
-        new_pixels.append(tuple(new_channels))
-
-    stego_img = Image.new("RGB", img.size)
-    stego_img.putdata(new_pixels)
+    stego_img = Image.frombytes("RGB", img.size, bytes(data))
     stego_img.save(str(output_path), format="PNG")
     logger.info(f"Image encoded: carrier={input_path.name}, payload={len(payload)} bytes → {output_path.name}")
 
@@ -102,25 +90,17 @@ def decode_image(stego_path: Path) -> bytes:
     """
     try:
         img = Image.open(stego_path).convert("RGB")
-        pixels = list(img.getdata())
-
-        # Flatten all channel values
-        channels = [ch for pixel in pixels for ch in pixel]
-        raw_bits = [ch & 1 for ch in channels]
+        data = img.tobytes()
 
         # Read length prefix
-        length_bits = raw_bits[:_LENGTH_BITS]
+        length_bits = [byte & 1 for byte in data[:_LENGTH_BITS]]
         payload_length = _bits_to_int(length_bits)
 
-        # FIX #7: Account for the 32-bit length header itself in the capacity budget.
-        # The stego capacity is (total_channels // 8) bytes total, which includes
-        # the 4 bytes used by the length prefix. So the max usable payload is capacity-4.
-        max_payload_bytes = (len(channels) // 8) - (_LENGTH_BITS // 8)
+        max_payload_bytes = (len(data) - _LENGTH_BITS) // 8
         if payload_length <= 0 or payload_length > max_payload_bytes:
             raise ExtractionError("Invalid length header — file may not contain hidden data.")
 
-
-        payload_bits = raw_bits[_LENGTH_BITS : _LENGTH_BITS + payload_length * 8]
+        payload_bits = [byte & 1 for byte in data[_LENGTH_BITS : _LENGTH_BITS + payload_length * 8]]
         payload = _bits_to_bytes(payload_bits)
 
         logger.info(f"Image decoded: {stego_path.name}, extracted {len(payload)} bytes")
