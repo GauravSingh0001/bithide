@@ -164,13 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const apiKey = getActiveApiKey();
-                if (!apiKey) throw new Error("No active API Key found in secure memory. Generate one in the Developer API tab.");
+                const headers = {};
+                if (apiKey) {
+                    headers['X-API-Key'] = apiKey;
+                }
 
                 const response = await fetch(`${API_BASE_URL}/encode`, {
                     method: 'POST',
-                    headers: {
-                        'X-API-Key': apiKey
-                    },
+                    headers: headers,
                     body: formData
                 });
 
@@ -226,13 +227,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const apiKey = getActiveApiKey();
-                if (!apiKey) throw new Error("No active API Key found in secure memory. Generate one in the Developer API tab.");
+                const headers = {};
+                if (apiKey) {
+                    headers['X-API-Key'] = apiKey;
+                }
 
                 const response = await fetch(`${API_BASE_URL}/decode`, {
                     method: 'POST',
-                    headers: {
-                        'X-API-Key': apiKey
-                    },
+                    headers: headers,
                     body: formData
                 });
 

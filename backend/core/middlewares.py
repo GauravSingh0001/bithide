@@ -67,3 +67,50 @@ def require_api_key(f):
 
         return f(*args, **kwargs)
     return decorated_function
+
+
+def optional_api_key(f):
+    """
+    Decorator that checks for an API key. If present, it validates it.
+    If not, it allows the request to proceed anonymously.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        raw_key = request.headers.get("X-API-Key")
+        if not raw_key:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                raw_key = auth_header.split("Bearer ")[1].strip()
+        
+        if not raw_key:
+            # Proceed anonymously
+            return f(*args, **kwargs)
+
+        key_hash = hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
+
+        try:
+            supabase = get_supabase()
+            response = supabase.table("api_keys").select("id, user_id, is_active").eq("api_key_hash", key_hash).execute()
+            
+            if not response.data:
+                raise UnauthorizedError("Invalid API Key.")
+            
+            key_data = response.data[0]
+            
+            if not key_data.get("is_active"):
+                raise UnauthorizedError("This API Key has been revoked.")
+
+            g.api_key_id = key_data["id"]
+            g.user_id = key_data["user_id"]
+            
+        except BitHideException:
+            raise
+        except Exception as e:
+            raise BitHideException(
+                message=f"Authentication service error: {e}",
+                status_code=500,
+                error_code="AUTH_FAILED"
+            )
+
+        return f(*args, **kwargs)
+    return decorated_function

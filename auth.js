@@ -19,6 +19,7 @@ const authToggleLink = document.getElementById('auth-toggle-link');
 const authToggleText = document.getElementById('auth-toggle-text');
 const btnLogout = document.getElementById('btn-logout');
 const userDisplay = document.getElementById('user-display');
+const authCloseBtn = document.getElementById('auth-close-btn');
 
 // Dashboard Elements
 const apiKeyText = document.getElementById('api-key-text');
@@ -77,7 +78,7 @@ export async function initAuth() {
                 } else {
                     const { error } = await supabase.auth.signUp({ email, password });
                     if (error) throw error;
-                    alert("Registration successful! You may need to verify your email depending on Supabase settings.");
+                    alert("Clearance granted! Welcome to BitHide.");
                     isLoginMode = true; // Switch back to login
                     authSubmitBtn.innerText = "Authenticate Session";
                     authSubmitBtn.disabled = false;
@@ -92,18 +93,32 @@ export async function initAuth() {
         });
     }
 
-    // Logout
+    // Logout / Open Auth
     if (btnLogout) {
         btnLogout.addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            localStorage.removeItem('bithide_live_api_key');
+            if (currentSession) {
+                await supabase.auth.signOut();
+                localStorage.removeItem('bithide_live_api_key');
+                alert("Successfully signed out. Secure session terminated.");
+            } else {
+                openAuthModal();
+            }
+        });
+    }
+
+    if (authCloseBtn) {
+        authCloseBtn.addEventListener('click', () => {
+            closeAuthModal();
         });
     }
 
     // Generate API Key
     if (btnGenerateKey) {
         btnGenerateKey.addEventListener('click', async () => {
-            if (!currentSession) return;
+            if (!currentSession) {
+                openAuthModal();
+                return;
+            }
             if (!confirm("Warning: Generating a new key will instantly revoke your old active key. Continue?")) return;
 
             btnGenerateKey.disabled = true;
@@ -161,11 +176,20 @@ async function handleSessionState(session) {
             userDisplay.innerText = session.user.email.split('@')[0];
         }
         await fetchCurrentKeyStatus(session.access_token);
+        btnLogout.title = "Sign Out";
+        btnLogout.innerHTML = `<span id="user-display">${session.user.email.split('@')[0]}</span><i class="ph-fill ph-sign-out"></i>`;
     } else {
         // Logged out
-        authModal.classList.add('active');
+        authModal.classList.remove('active'); // Don't force overlay!
         if (userDisplay) {
-            userDisplay.innerText = "Not logged in";
+            userDisplay.innerText = "Developer Session";
+        }
+        btnLogout.title = "Sign In for Developer API";
+        btnLogout.innerHTML = `<span id="user-display">Sign In / Register</span><i class="ph-fill ph-sign-in"></i>`;
+        if (apiKeyText) {
+            apiKeyText.innerText = "Authentication required. Sign in or register to generate an API key.";
+            apiKeyText.style.color = "var(--text-muted)";
+            if (btnCopyKey) btnCopyKey.style.display = "none";
         }
     }
 }
@@ -197,4 +221,12 @@ async function fetchCurrentKeyStatus(token) {
 
 export function getActiveApiKey() {
     return localStorage.getItem('bithide_live_api_key');
+}
+
+export function openAuthModal() {
+    authModal.classList.add('active');
+}
+
+export function closeAuthModal() {
+    authModal.classList.remove('active');
 }

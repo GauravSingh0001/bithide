@@ -18,9 +18,13 @@
 
 <body>
     <!-- AUTH MODAL SYSTEM -->
-    <div id="auth-modal" class="auth-modal-overlay active">
+    <div id="auth-modal" class="auth-modal-overlay">
         <div class="auth-card">
-            <div class="auth-card-header">
+            <div class="auth-card-header" style="position: relative;">
+                <button id="auth-close-btn"
+                    style="position:absolute; right:0; top:0; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:24px;">
+                    <i class="ph ph-x"></i>
+                </button>
                 <i class="ph-fill ph-fingerprint auth-logo"></i>
                 <h2 id="auth-title">Sign In to BitHide</h2>
                 <p id="auth-subtitle">Secure access to the stego platform</p>
@@ -49,7 +53,7 @@
             </form>
 
             <div class="auth-toggle">
-                <span id="auth-toggle-text">Need to establish clearance?</span>
+                <span id="auth-toggle-text">Need an API key?</span>
                 <a id="auth-toggle-link">Sign Up</a>
             </div>
         </div>

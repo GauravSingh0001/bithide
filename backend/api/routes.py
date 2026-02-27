@@ -9,7 +9,7 @@ from flask import Blueprint, request, jsonify, send_file, after_this_request
 
 from processing.orchestrator import run_encode, run_decode
 from file_handler.handler import FileHandler
-from core.middlewares import require_api_key
+from core.middlewares import optional_api_key
 from config import Config
 from utils.logger import get_logger
 from utils.exceptions import (
@@ -47,7 +47,7 @@ def _validate_key(key: str) -> None:
 # ─── Endpoints ───────────────────────────────────────────────────────────────
 
 @stego_bp.route("/encode", methods=["POST"])
-@require_api_key
+@optional_api_key
 def encode():
     """
     POST /encode
@@ -107,7 +107,7 @@ def encode():
 
 
 @stego_bp.route("/decode", methods=["POST"])
-@require_api_key
+@optional_api_key
 def decode():
     """
     POST /decode
